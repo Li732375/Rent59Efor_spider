@@ -21,24 +21,22 @@ class Rent59ESpider():
         self.headers_user_agent: str = ""
         self.error_log_file: str = 'error_message.json'
 
-        self.uni_filter_params: Dict[str, str] = { 
-            's5': '0',
-            'isnew': '3',
-            'wktm': '1',
-            'ro': '1', 
+        self.uni_filter_params: Dict[str, str] = {
+            'region': '1',
+            'kind': '2',
+            'price': '$_13000$',
+            'shType': 'host',
+            'metro': '162',
+            'sort':'posttime_desc',
         }
         self.mul_filter_params: Dict[str, str] = {
-            'area': '6001016001,6001016002,6001016003,6001016004,6001016005,6001016007,6001016008,6001016011,6001016024,6001016027,6001014001,6001014002,6001014003,6001014004,6001014008,6001014014,6001001000',
-            'rentexp': '1,3',
-            'edu': '3,4,5',
-            'rentcat': '2007001004,2007001018,2007001022,2007001020,2007001012,2007001009,2007001010,2016001013',
+            'option': 'cold,washer,icebox,hotwater,broadband,bed',
+            'notice': 'not_cover,all_sex,boy',
+            'station': '4184',
         }
         self.field_names_order: List[str] = [
-            '更新日期', '工作型態', '工作時段', '薪資類型', '最低薪資',
-            '最高薪資', '職缺名稱', '學歷', '工作經驗', '工作縣市',
-            '工作里區', '工作地址', '公司名稱', '職缺描述', '其他描述',
-            '擅長要求', '證照', '駕駛執照', '出差', '104 職缺網址',
-            '公司產業類別', '法定福利'
+            '更新日期', '案件標題', '類型', '坪數', '樓層', '總樓層',
+            '地址', '租金', '屋主', '網址', '型態', '押金', '屋主說'
         ]
 
         # 寫入空列表，清空舊紀錄
@@ -83,7 +81,7 @@ class Rent59ESpider():
             page = context.new_page()
             
             try:
-                page.goto('https://www.104.com.tw/', 
+                page.goto('rent.591.com.tw', 
                           wait_until="domcontentloaded",  # 避免 networkidle 超時
                           timeout=60000  # 最多等待 60 秒
                           )
@@ -108,7 +106,7 @@ class Rent59ESpider():
         attempt = 0
         if headers is None: headers = {}
         headers['User-Agent'] = self.headers_user_agent
-        headers['Referer'] = 'https://www.104.com.tw/'
+        headers['Referer'] = 'rent.591.com.tw'
 
         while attempt < max_retries:
             try:
@@ -129,22 +127,22 @@ class Rent59ESpider():
         return None
 
     def search(self, 
-               max_num: int =150, 
+               max_num: int = 150, 
                filter_params: Optional[Dict[str, str]]=None) -> List[str]: 
         rents = []
-        query_parts = ['rentsource=index_s', 'mode=s']
+        query_parts = []
 
         if filter_params:
             for k, v in filter_params.items():
                 query_parts.append(f'{k}={v}')
 
         query = '&'.join(query_parts)
-        url = 'https://www.104.com.tw/jobs/search/api/jobs'
+        url = 'https://rent.591.com.tw/list'
         headers = {'Accept': 'application/json, text/plain, */*'}
         page = 1
         
         while max_num == -1 or len(rents) < max_num:
-            full_params = f'{query}&page={page}&pagesize=20'
+            full_params = f'{query}&page={page}'  # 一頁 30 筆
             r = self.fetch_with_retry(url, headers=headers, params=full_params)
             if r is None: break
 
@@ -163,8 +161,8 @@ class Rent59ESpider():
         return rents[:max_num]
 
     def get_rent(self, rent_id: str) -> Optional[Dict[str, Any]]:
-        url = f'https://www.104.com.tw/job/ajax/content/{rent_id}'
-        headers = {'Referer': f'https://www.104.com.tw/job/{rent_id}', 
+        url = f'https://rent.591.com.tw/{rent_id}'
+        headers = {'Referer': f'https://rent.591.com.tw/{rent_id}', 
                    'Accept': 'application/json'}
         
         r = self.fetch_with_retry(url, headers=headers)
@@ -274,7 +272,7 @@ if __name__ == "__main__":
 
     # 產生組合
     keys, combinations = spider.generate_filter_combinations(mul_params)
-    print(f"開始搜尋職缺 ID（組合數：{len(combinations)}）")
+    print(f"開始搜尋租屋 ID（組合數：{len(combinations)}）")
 
     # 搜尋職缺 ID
     rent_ids = spider.collect_rent_ids(
