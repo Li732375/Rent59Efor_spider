@@ -11,6 +11,9 @@ import os
 from typing import Dict, List, Set, Tuple, Optional, Any
 from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
+from bs4 import BeautifulSoup
+import re
+
 
 # 設定標準輸出編碼
 sys.stdout.reconfigure(encoding='utf-8-sig')
@@ -22,21 +25,22 @@ class Rent59ESpider():
         self.error_log_file: str = 'error_message.json'
 
         self.uni_filter_params: Dict[str, str] = {
-            'region': '1',
-            'kind': '2',
-            'price': '$_13000$',
-            'shType': 'host',
-            'metro': '162',
-            'sort':'posttime_desc',
+            'region': '1',  # 台北1、新北2
+            'kind': '2',  # 類型-獨立套房
+            'price': '$_13000$',  # 最低額度(不寫為0)$_最高額度$
+            'shType': 'host',  # 屋主直租
+            'metro': '162',  # 北捷
+            'sort':'posttime_desc',  # 按更新時間排序
+            'option': 'cold,washer,icebox,hotwater,broadband,bed',  # 冷氣、洗衣機、冰箱、熱水器、寬頻網路、床
+            'notice': 'not_cover,all_sex,boy',  # 非頂加、皆可、限男
+            'station': '4184',  # 古亭站
         }
         self.mul_filter_params: Dict[str, str] = {
-            'option': 'cold,washer,icebox,hotwater,broadband,bed',
-            'notice': 'not_cover,all_sex,boy',
-            'station': '4184',
         }
         self.field_names_order: List[str] = [
-            '更新日期', '案件標題', '類型', '坪數', '樓層', '總樓層',
-            '地址', '租金', '屋主', '網址', '型態', '押金', '屋主說'
+            '更新日期', '案件標題', '坪數', '樓層', '總樓層',
+            '地址', '租金', '屋主', '網址', '電話',
+            '屋主說',
         ]
 
         # 寫入空列表，清空舊紀錄
@@ -71,6 +75,7 @@ class Rent59ESpider():
             json.dump(data, f, ensure_ascii=False, indent=4)
 
     def refresh_session(self) -> None:
+        """刷新 session"""
         print("正在啟動隱身瀏覽器通過驗證...", end='', flush=True)
         with Stealth().use_sync(sync_playwright()) as p:
             browser = p.chromium.launch(headless=True)
@@ -81,7 +86,7 @@ class Rent59ESpider():
             page = context.new_page()
             
             try:
-                page.goto('rent.591.com.tw', 
+                page.goto('https://rent.591.com.tw', 
                           wait_until="domcontentloaded",  # 避免 networkidle 超時
                           timeout=60000  # 最多等待 60 秒
                           )
@@ -103,16 +108,16 @@ class Rent59ESpider():
                          params: Optional[Any]=None, 
                          max_retries: int = 3
                          ) -> Optional[requests.Response]:
+        """取得完整網頁與重試索取"""
         attempt = 0
         if headers is None: headers = {}
         headers['User-Agent'] = self.headers_user_agent
-        headers['Referer'] = 'rent.591.com.tw'
 
         while attempt < max_retries:
             try:
                 r = self.session.get(url, headers=headers, params=params, 
                                      timeout=15)
-                if r.status_code == 200: return r
+                if r.status_code == 200: return r  # 執行成功的話，送出網頁資料解析
 
                 if r.status_code in (429, 403):
                     self.refresh_session()
@@ -128,7 +133,8 @@ class Rent59ESpider():
 
     def search(self, 
                max_num: int = 150, 
-               filter_params: Optional[Dict[str, str]]=None) -> List[str]: 
+               filter_params: Optional[Dict[str, str]]=None) -> List[str]:
+        """撈取所有資料"""
         rents = []
         query_parts = []
 
@@ -138,7 +144,8 @@ class Rent59ESpider():
 
         query = '&'.join(query_parts)
         url = 'https://rent.591.com.tw/list'
-        headers = {'Accept': 'application/json, text/plain, */*'}
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36",
+                   "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"}
         page = 1
         
         while max_num == -1 or len(rents) < max_num:
@@ -147,10 +154,64 @@ class Rent59ESpider():
             if r is None: break
 
             try:
-                datas = r.json()
-                if 'data' not in datas: break
-                rents.extend(data['link']['job'].split('/job/')[-1] for data in datas['data'])
-                if page >= datas['metadata']['pagination']['lastPage']: break
+                soup = BeautifulSoup(r.text, "html.parser")
+
+                # 取得房屋總數
+                total_tag = soup.select_one("p.total strong")
+                total = total_tag.get_text(strip=True) if total_tag else "0"
+
+                print(f'共 {total} 筆資料')
+                print()
+
+                for item in soup.select("div.item"):
+
+                    link = item.select_one(".item-info-title a")
+
+                    # 網址
+                    url = link["href"].strip()
+
+                    # 標題
+                    title = link.get_text(strip=True)
+                    
+                    # 地址
+                    addr = item.select_one(".house-place ~ span .inline-flex-row")
+                    addr = addr.get_text(strip=True) if addr else ""
+
+                    # 坪數、樓層與總樓層
+                    lines = item.select(".house-home ~ span.line .inline-flex-row")
+                    area = lines[0].get_text(strip=True) if len(lines) > 0 else ""
+                    floor_text = lines[1].get_text(strip=True) if len(lines) > 1 else ""
+                    
+                    floor = ""
+                    total_floor = ""
+
+                    if floor_text and "/" in floor_text:
+                        floor, total_floor = floor_text.split("/")
+
+                    # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
+                    metro_name = item.select_one(".house-metro + span")
+                    metro_dist = item.select_one(".house-metro + span + strong")
+
+                    metro = ""
+                    if metro_name and metro_dist:
+                        metro = f"{metro_name.get_text(strip=True)} {metro_dist.get_text(strip=True)}"
+
+                    # 屋主
+                    owner = item.select_one(".role-name span")
+                    owner = owner.get_text(strip=True)[2:] if owner else ""
+
+                    # 更新時間
+                    update = item.select_one(".role-name .line")
+                    update = update.get_text(strip=True) if update else ""
+
+                    # 租金
+                    price = item.select_one(".item-info-price .inline-flex-row")
+                    price = price.get_text(strip=True) if price else ""
+
+                    rents.append([url, title, addr, area, floor, total_floor, 
+                                  metro, owner, update, price])
+
+                if page * 30 >= int(total): break
                 time.sleep(random.uniform(1, 2))
                 page += 1
                 
@@ -160,70 +221,51 @@ class Rent59ESpider():
 
         return rents[:max_num]
 
-    def get_rent(self, rent_id: str) -> Optional[Dict[str, Any]]:
-        url = f'https://rent.591.com.tw/{rent_id}'
-        headers = {'Referer': f'https://rent.591.com.tw/{rent_id}', 
-                   'Accept': 'application/json'}
+    def get_rent(self, rent: List[str]) -> Optional[Dict[str, Any]]:
+        """取得單筆網站進階資訊"""
+        url = rent[0]
         
-        r = self.fetch_with_retry(url, headers=headers)
+        r = self.fetch_with_retry(url)
         if r is None: return None
-        rent_data = None
 
         try:
-            resp_json = r.json()
-            rent_data = resp_json.get('data')
-            if not rent_data or rent_data.get('switch') == 'off': return None
-
-            salary_map = {10: '面議', 
-                          20: '論件計酬', 
-                          30: '時薪', 
-                          40: '日薪', 
-                          50: '有薪', 
-                          60: '年薪', 
-                          70: '其他',
-                          }
-            header = rent_data.get('header', {})
-            rent_detail = rent_data.get('jobDetail', {})
-            condition = rent_data.get('condition', {})
-            welfare = rent_data.get('welfare', {})
-
-            workType = ', '.join(rent_detail.get('workType', [])) or '全職'
-            raw_area = rent_detail.get('addressRegion', "")
-            rentArea = raw_area if len(raw_area) == 3 else raw_area[3:]
+            soup = BeautifulSoup(r.text, "html.parser")
             
+            # 電話
+            phone = re.search(r'09\d{2}-\d{3}-\d{3}', soup.get_text())
+            phone = phone.group()
+            rent.append(phone)
+
+            # 房屋描述
+            article = soup.select_one("div.house-condition-content div.article")
+            description = article.get_text(separator="\n", strip=True)
+            rent.append(description)
+
             data_info = {
-                '更新日期': header.get('appearDate'),
-                '工作型態': workType,  
-                '工作時段': rent_detail.get('workPeriod'),
-                '薪資類型': salary_map.get(rent_detail.get('salaryType'), '其他'),
-                '最低薪資': int(rent_detail.get('salaryMin', 0)),
-                '最高薪資': int(rent_detail.get('salaryMax', 0)),
-                '職缺名稱': header.get('jobName'),
-                '學歷': condition.get('edu'),
-                '工作經驗': condition.get('workExp'),
-                '工作縣市': rent_detail.get('addressArea'),
-                '工作里區': rentArea,
-                '工作地址': rent_detail.get('addressDetail') or '無',
-                '公司名稱': header.get('custName'),
-                '職缺描述': rent_detail.get('jobDescription') or '無',
-                '其他描述': condition.get('other') or '無',
-                '擅長要求': ', '.join(item.get('description', '') for item in condition.get('specialty', [])) or '無',
-                '證照': ', '.join(item.get('name', '') for item in condition.get('certificate', [])) or '無',
-                '駕駛執照': ', '.join(condition.get('driverLicense', [])) or '無',
-                '出差': rent_detail.get('businessTrip') or '無',
-                '104 職缺網址': f'https://www.104.com.tw/job/{rent_id}?apply=form',
-                '公司產業類別': rent_data.get('industry'),
-                '法定福利': ', '.join(welfare.get('legalTag', [])) or '無',
-            }
+                '更新日期': rent[8],
+                '案件標題': rent[1], 
+                '坪數': rent[3], 
+                '樓層': rent[4], 
+                '總樓層': rent[5],
+                '地址': rent[2], 
+                '租金': rent[9], 
+                '屋主': rent[7],
+                '網址': rent[0],
+                '電話': rent[10],
+                '屋主說': rent[11],
+                '捷運': rent[6]
+                }
+            
             return data_info
         
         except Exception as e:
-            self.log_error(rent_id, e, raw_data=rent_data)
+            self.log_error('get_rent', e, raw_data=None)
             return None
 
     def generate_filter_combinations(self, 
                                      mul_filter_params: Dict[str, str]
                                      ) -> Tuple[List[str], List[Tuple[str, ...]]]:
+        """產生複選排列組合結果"""
         keys: List[str] = list(mul_filter_params.keys())
         values: List[List[str]] = [v.split(',') for v in mul_filter_params.values()]
         combinations: List[Tuple[str, ...]] = list(product(*values))
@@ -235,7 +277,8 @@ class Rent59ESpider():
                         combinations: List[Tuple[str, ...]]
                         , max_num: int = 20
                         ) -> Set[str]:
-        allrents_set: Set[str] = set()
+        """去除重複資料"""
+        allrents_list: List[List[str]] = []
 
         for idx, combo in enumerate(combinations, 1):
             filter_params: Dict[str, str] = {
@@ -243,24 +286,24 @@ class Rent59ESpider():
                 **dict(zip(keys, combo))
             }
             rents: List[str] = self.search(max_num=max_num, filter_params=filter_params)
-            allrents_set.update(rents)
-            print(f"進度：{(idx/len(combinations))*100:6.2f} % | 累計職缺：{len(allrents_set)}", end='\r')
+            allrents_list.extend(rents)
+            print(f"進度：{(idx/len(combinations))*100:6.2f} % | 累計：{len(allrents_list)}", end='\r')
 
-        return allrents_set
+        return allrents_list
     
     def fetch_rents_and_write_csv(self, 
-                                 rent_ids: Set[str], 
+                                 rents: Set[str], 
                                  output_file: str) -> None:
         with open(output_file, 'w', encoding='utf-8-sig', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=self.field_names_order)
             writer.writeheader()
 
-            for idx, rent_id in enumerate(rent_ids, 1):
-                info = self.get_rent(rent_id)
+            for idx, rent in enumerate(rents, 1):
+                info = self.get_rent(rent)
                 if info:
                     writer.writerow({k: info.get(k, '無') for k in self.field_names_order})
                     f.flush()
-                print(f"進度：{(idx/len(rent_ids))*100:6.2f} % ({idx}/{len(rent_ids)})", end='\r')
+                print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", end='\r')
                 time.sleep(random.uniform(0.1, 1))
     
 if __name__ == "__main__":
@@ -274,7 +317,7 @@ if __name__ == "__main__":
     keys, combinations = spider.generate_filter_combinations(mul_params)
     print(f"開始搜尋租屋 ID（組合數：{len(combinations)}）")
 
-    # 搜尋職缺 ID
+    # 條件搜尋
     rent_ids = spider.collect_rent_ids(
         uni_filter_params=uni_params,
         keys=keys,
