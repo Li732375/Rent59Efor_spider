@@ -341,8 +341,9 @@ class Rent59ESpider():
         wrap_format = CellFormat(wrapStrategy='WRAP')
         format_cell_range(new_worksheet, 'A:Z', wrap_format)
 
-        # 設定整個工作表列高 40 px
-        set_row_height(new_worksheet, 1, 100, 40)
+        # 設定每列高度 40 px（必須迴圈）
+        for row_index in range(1, 101):
+            set_row_height(new_worksheet, row_index, 40)
 
         return new_worksheet
 
