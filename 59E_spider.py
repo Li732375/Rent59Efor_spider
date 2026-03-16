@@ -327,7 +327,10 @@ class Rent59ESpider():
 
         client = gspread.authorize(creds)
         sheet_name = f"rent_list_{time.strftime('%Y-%m-%d-%H-%M')}"
-        spreadsheet = client.create(sheet_name, folder_id="cloud_dir_id")
+        spreadsheet = client.create(
+            sheet_name, 
+            folder_id=os.environ["GOOGLE_CLOUD_DIR"])
+        
         worksheet = spreadsheet.sheet1
         worksheet.append_row(self.field_names_order)
 
