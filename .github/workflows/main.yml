@@ -42,7 +42,7 @@ jobs:
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT }}' > service_account.json
 
-      - name: Setup Google credential
+      - name: Setup Google cloud dir
         run: |
           echo '${{ secrets.GOOGLE_CLOUD_DIR }}' > cloud_dir_id
 
