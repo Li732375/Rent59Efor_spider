@@ -326,7 +326,7 @@ class Rent59ESpider():
         )
 
         client = gspread.authorize(creds)
-        sheet_name = f"rent_list_{time.strftime('%Y-%m-%d-%H-%M')}"
+        sheet_name = f"rent_list_{time.strftime('%Y_%m_%d_%H_%M')}"
         spreadsheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
         worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
         worksheet.append_row(self.field_names_order)
@@ -353,7 +353,7 @@ if __name__ == "__main__":
     print(f"共取得 {len(rent_ids)} 筆資料")
 
     # 抓詳情並寫入 CSV (格式 2026-01-05-13-45)
-    output_file = f"rent_list_{time.strftime('%Y-%m-%d-%H-%M')}.csv"
+    output_file = f"rent_list_{time.strftime('%Y_%m_%d_%H_%M')}.csv"
     spider.fetch_rents_and_write_csv(rent_ids, output_file)
 
     # 依是否有錯誤紀錄，調整輸出結果
