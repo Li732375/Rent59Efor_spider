@@ -165,6 +165,7 @@ class Rent59ESpider():
                 # 取得房屋總數
                 total_tag = soup.select_one("p.total strong")
                 self.total_num = total_tag.get_text(strip=True) if total_tag else "0"
+                self.total_num = int(self.total_num)
 
                 print(f'共 {self.total_num} 筆資料')
 
@@ -220,7 +221,7 @@ class Rent59ESpider():
                     rents.append([url, title, addr, area, floor, total_floor, 
                                   metro, owner, update, price])
 
-                if page * 30 >= int(self.total_num): break
+                if page * 30 >= self.total_num: break
                 time.sleep(random.uniform(1, 2))
                 page += 1
                 
