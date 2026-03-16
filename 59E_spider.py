@@ -13,6 +13,8 @@ from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 from bs4 import BeautifulSoup
 import re
+import gspread
+from google.oauth2.service_account import Credentials
 
 
 # 設定標準輸出編碼
@@ -294,6 +296,9 @@ class Rent59ESpider():
     def fetch_rents_and_write_csv(self, 
                                  rents: Set[str], 
                                  output_file: str) -> None:
+        """產生csv並寫入雲端試算表"""
+        worksheet = self.init_google_sheet()
+        
         with open(output_file, 'w', encoding='utf-8-sig', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=self.field_names_order)
             writer.writeheader()
@@ -301,11 +306,40 @@ class Rent59ESpider():
             for idx, rent in enumerate(rents, 1):
                 info = self.get_rent(rent)
                 if info:
-                    writer.writerow({k: info.get(k, '無') for k in self.field_names_order})
+                    row = {k: info.get(k, '無') for k in self.field_names_order}
+                    writer.writerow(row)
+                    worksheet.append_row(list(row.values()))
                     f.flush()
                 print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", end='\r')
                 time.sleep(random.uniform(0.1, 1))
     
+    def init_google_sheet(self):
+        """輸出解析資料至 google sheet"""
+        scopes = [
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+
+        creds = Credentials.from_service_account_file(
+            "service_account.json",
+            scopes=scopes
+        )
+
+        client = gspread.authorize(creds)
+
+        sheet_name = f"rent_list_{time.strftime('%Y-%m-%d-%H-%M')}"
+
+        spreadsheet = client.create(sheet_name)
+
+        worksheet = spreadsheet.sheet1
+
+        worksheet.append_row(self.field_names_order)
+
+        print("Google Sheet created:")
+        print(spreadsheet.url)
+
+        return worksheet
+
 if __name__ == "__main__":
     spider = Rent59ESpider()
 
