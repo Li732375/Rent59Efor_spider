@@ -326,7 +326,8 @@ class Rent59ESpider():
         )
 
         client = gspread.authorize(creds)
-        sheet_name = f"rent_list_{time.strftime("%Y_%m_%d_%H_%M")}"
+        time_name = time.strftime("%Y_%m_%d_%H_%M")
+        sheet_name = f"rent_list_{time_name}"
         spreadsheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
         new_worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
         new_worksheet.append_row(self.field_names_order)
