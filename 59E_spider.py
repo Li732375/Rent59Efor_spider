@@ -15,7 +15,8 @@ from bs4 import BeautifulSoup
 import re
 import gspread
 from google.oauth2.service_account import Credentials
-from gspread_formatting import format_cell_range, CellFormat, GridRange
+from gspread_formatting import format_cell_range, CellFormat, set_row_height
+
 
 
 # 設定標準輸出編碼
@@ -336,11 +337,12 @@ class Rent59ESpider():
                                                   cols="20")
         new_worksheet.append_row(self.field_names_order)
 
-        # 設定統一列高 (例如 40 px) 並啟用文字換行
-        wrap_format = CellFormat(wrapStrategy='WRAP', row_height=40)
-        for row_index in range(1, max_rows + 1):  # 1~100 行
-            grid_range = GridRange.from_a1_range(f"{row_index}:{row_index}", new_worksheet)
-            format_cell_range(new_worksheet, grid_range, wrap_format)
+        # 整個工作表文字換行
+        wrap_format = CellFormat(wrapStrategy='WRAP')
+        format_cell_range(new_worksheet, 'A:Z', wrap_format)
+
+        # 設定整個工作表列高 40 px
+        set_row_height(new_worksheet, 1, 100, 40)
 
         return new_worksheet
 
