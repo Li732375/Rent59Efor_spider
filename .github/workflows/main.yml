@@ -42,6 +42,10 @@ jobs:
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT }}' > service_account.json
 
+      - name: Setup Google credential
+        run: |
+          echo '${{ secrets.GOOGLE_CLOUD_DIR }}' > cloud_dir_id
+
       - name: Run spider script
         run: python 59E_spider.py
 
