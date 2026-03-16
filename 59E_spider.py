@@ -344,12 +344,12 @@ class Rent59ESpider():
         new_worksheet.append_row(self.field_names_order)
 
         # 整個工作表文字換行
-        wrap_format = CellFormat(wrapStrategy='WRAP')
+        wrap_format = CellFormat(wrapStrategy='CLIP')
         format_cell_range(new_worksheet, 'A:Z', wrap_format)
 
         # 設定每列高度 40 px（必須迴圈）
         for row_index in range(1, self.total_num):
-            set_row_height(new_worksheet, str(row_index), 40)
+            set_row_height(new_worksheet, str(row_index), 30)
 
         return new_worksheet
 
