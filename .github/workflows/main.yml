@@ -44,7 +44,7 @@ jobs:
 
       - name: Run spider script
         env:
-          GOOGLE_CLOUD_DIR: ${{ secrets.GOOGLE_SHEET_ID }}
+          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: python 59E_spider.py
 
       - name: Commit and push changes
