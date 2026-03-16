@@ -317,7 +317,7 @@ class Rent59ESpider():
         """輸出解析資料至 google sheet"""
         scopes = [
             "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive"
+            "https://www.googleapis.com/auth/drive.file"
         ]
 
         creds = Credentials.from_service_account_file(
