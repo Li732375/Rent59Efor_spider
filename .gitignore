@@ -4,3 +4,4 @@ ETL.py
 Origin_fork/
 __pycache__
 *.html
+*.json
