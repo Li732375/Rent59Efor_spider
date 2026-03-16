@@ -42,11 +42,9 @@ jobs:
         run: |
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT }}' > service_account.json
 
-      - name: Setup Google cloud dir
-        run: |
-          echo '${{ secrets.GOOGLE_CLOUD_DIR }}' > cloud_dir_id
-
       - name: Run spider script
+        env:
+          GOOGLE_CLOUD_DIR: ${{ secrets.GOOGLE_CLOUD_DIR }}
         run: python 59E_spider.py
 
       - name: Commit and push changes
