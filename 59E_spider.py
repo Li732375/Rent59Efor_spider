@@ -353,8 +353,8 @@ if __name__ == "__main__":
     )
     print(f"共取得 {len(rent_ids)} 筆資料")
 
-    # 抓詳情並寫入 CSV (格式 2026-01-05-13-45)
-    output_file = f"rent_list_{time.strftime('%Y_%m_%d_%H_%M')}.csv"
+    # 抓詳情並寫入 CSV
+    output_file = f"rent_list.csv"
     spider.fetch_rents_and_write_csv(rent_ids, output_file)
 
     # 依是否有錯誤紀錄，調整輸出結果
