@@ -314,10 +314,10 @@ class Rent59ESpider():
                 time.sleep(random.uniform(0.1, 1))
     
     def init_google_sheet(self):
-        """輸出解析資料至 google sheet"""
+        """初始化 google sheet"""
         scopes = [
             "https://www.googleapis.com/auth/spreadsheets",
-            "https://www.googleapis.com/auth/drive"
+            "https://www.googleapis.com/auth/drive.file"
         ]
 
         creds = Credentials.from_service_account_file(
@@ -327,11 +327,8 @@ class Rent59ESpider():
 
         client = gspread.authorize(creds)
         sheet_name = f"rent_list_{time.strftime('%Y-%m-%d-%H-%M')}"
-        spreadsheet = client.create(
-            sheet_name, 
-            folder_id=os.environ["GOOGLE_CLOUD_DIR"])
-        
-        worksheet = spreadsheet.sheet1
+        spreadsheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
+        worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
         worksheet.append_row(self.field_names_order)
 
         return worksheet
