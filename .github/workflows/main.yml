@@ -49,6 +49,8 @@ jobs:
           GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: python 59E_spider.py
 
+      # 記得設定 Setting > Actions > General > Workflow permissions > Read and write permissions
+      # 否則會報錯 403 權限問題
       - name: Commit and push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
