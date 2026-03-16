@@ -15,6 +15,7 @@ from bs4 import BeautifulSoup
 import re
 import gspread
 from google.oauth2.service_account import Credentials
+from gspread_formatting import format_cell_range, CellFormat, GridRange
 
 
 # 設定標準輸出編碼
@@ -329,8 +330,17 @@ class Rent59ESpider():
         time_name = time.strftime("%Y_%m_%d_%H_%M")
         sheet_name = f"rent_list_{time_name}".replace("'", "")
         spreadsheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
-        new_worksheet = spreadsheet.add_worksheet(title=sheet_name, rows="100", cols="20")
+        max_rows="100"
+        new_worksheet = spreadsheet.add_worksheet(title=sheet_name, 
+                                                  rows=max_rows, 
+                                                  cols="20")
         new_worksheet.append_row(self.field_names_order)
+
+        # 設定統一列高 (例如 40 px) 並啟用文字換行
+        wrap_format = CellFormat(wrapStrategy='WRAP', row_height=40)
+        for row_index in range(1, max_rows + 1):  # 1~100 行
+            grid_range = GridRange.from_a1_range(f"{row_index}:{row_index}", new_worksheet)
+            format_cell_range(new_worksheet, grid_range, wrap_format)
 
         return new_worksheet
 
