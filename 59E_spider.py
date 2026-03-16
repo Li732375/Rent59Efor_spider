@@ -47,6 +47,8 @@ class Rent59ESpider():
             '屋主說',
         ]
 
+        self.total_num = 0
+
         # 寫入空列表，清空舊紀錄
         with open(self.error_log_file, 'w', encoding='utf-8-sig') as f:
             json.dump([], f)
@@ -162,10 +164,9 @@ class Rent59ESpider():
 
                 # 取得房屋總數
                 total_tag = soup.select_one("p.total strong")
-                total = total_tag.get_text(strip=True) if total_tag else "0"
+                self.total_num = total_tag.get_text(strip=True) if total_tag else "0"
 
-                print(f'共 {total} 筆資料')
-                print()
+                print(f'共 {self.total_num} 筆資料')
 
                 for item in soup.select("div.item"):
 
@@ -192,6 +193,10 @@ class Rent59ESpider():
                     if floor_text and "/" in floor_text:
                         floor, total_floor = floor_text.split("/")
 
+                    # 提前過濾頂樓物件
+                    if floor == total_floor: continue
+                    self.total_num -= 1
+
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
                     metro_name = item.select_one(".house-metro + span")
                     metro_dist = item.select_one(".house-metro + span + strong")
@@ -215,7 +220,7 @@ class Rent59ESpider():
                     rents.append([url, title, addr, area, floor, total_floor, 
                                   metro, owner, update, price])
 
-                if page * 30 >= int(total): break
+                if page * 30 >= int(self.total_num): break
                 time.sleep(random.uniform(1, 2))
                 page += 1
                 
@@ -342,7 +347,7 @@ class Rent59ESpider():
         format_cell_range(new_worksheet, 'A:Z', wrap_format)
 
         # 設定每列高度 40 px（必須迴圈）
-        for row_index in range(1, 101):
+        for row_index in range(1, self.total_num):
             set_row_height(new_worksheet, str(row_index), 40)
 
         return new_worksheet
