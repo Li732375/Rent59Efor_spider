@@ -32,7 +32,7 @@ class Rent59ESpider():
             'price': '$_13000$',  # 最低額度(不寫為0)$_最高額度$
             'shType': 'host',  # 屋主直租
             'metro': '162',  # 北捷
-            'sort':'posttime_desc',  # 按更新時間排序
+            'sort': 'posttime_desc',  # 按更新時間排序
             'option': 'cold,washer,icebox,hotwater,broadband,bed',  # 冷氣、洗衣機、冰箱、熱水器、寬頻網路、床
             'notice': 'not_cover,all_sex,boy',  # 非頂加、皆可、限男
             'station': '4184',  # 古亭站
@@ -40,9 +40,9 @@ class Rent59ESpider():
         self.mul_filter_params: Dict[str, str] = {
         }
         self.field_names_order: List[str] = [
-            '更新日期', '發佈時間', '坪數', '樓層',
-            '總樓層', '地址', '租金', '網址', 
-            '屋主', '電話', '案件標題',  '屋主說',
+            '更新日期', '發佈時間', '坪數', '樓層', '總樓層', 
+            '捷運站', '捷運站距離', '地址', '租金', '網址', 
+            '屋主', '電話', '案件標題', '屋主說', 
         ]
 
         self.total_num = 0
@@ -197,12 +197,11 @@ class Rent59ESpider():
                     self.total_num -= 1
 
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
-                    metro_name = item.select_one(".house-metro + span")
+                    metro_name = (
+                        item.select_one(".house-metro + span")
+                        .replace('站', '')
+                        )
                     metro_dist = item.select_one(".house-metro + span + strong")
-
-                    metro = ""
-                    if metro_name and metro_dist:
-                        metro = f"{metro_name.get_text(strip=True)} {metro_dist.get_text(strip=True)}"
 
                     # 屋主
                     owner = item.select_one(".role-name span")
@@ -217,7 +216,7 @@ class Rent59ESpider():
                     price = price.get_text(strip=True) if price else ""
 
                     rents.append([url, title, addr, area, floor, total_floor, 
-                                  metro, owner, update, price])
+                                  metro_name, owner, update, price, metro_dist])
 
                 if page * 30 >= self.total_num: break
                 time.sleep(random.uniform(1, 2))
@@ -268,10 +267,11 @@ class Rent59ESpider():
                 '租金': rent[9], 
                 '屋主': rent[7],
                 '網址': rent[0],
-                '電話': rent[10],
-                '屋主說': rent[11],
-                '捷運': rent[6],
-                '發佈時間': rent[12],
+                '電話': rent[11],
+                '屋主說': rent[12],
+                '捷運站': rent[6],
+                '發佈時間': rent[13],
+                '捷運站距離': rent[14],
                 }
             
             return data_info
