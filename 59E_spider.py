@@ -199,9 +199,14 @@ class Rent59ESpider():
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
                     metro_name = (
                         item.select_one(".house-metro + span")
-                        .replace('站', '')
+                        .get_text(strip=True)
+                        .replace('距', '')
+                        .replace('捷運站', '')
                         )
-                    metro_dist = item.select_one(".house-metro + span + strong")
+                    metro_dist = (
+                        item.select_one(".house-metro + span + strong")
+                        .get_text(strip=True)
+                        )
 
                     # 屋主
                     owner = item.select_one(".role-name span")
