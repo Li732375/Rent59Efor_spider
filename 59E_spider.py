@@ -271,7 +271,7 @@ class Rent59ESpider():
                 '屋主說': rent[12],
                 '捷運站': rent[6],
                 '發佈時間': rent[13],
-                '捷運站距離': rent[14],
+                '捷運站距離': rent[10],
                 }
             
             return data_info
