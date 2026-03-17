@@ -323,6 +323,7 @@ class Rent59ESpider():
                       end='\r')
                 time.sleep(random.uniform(0.1, 1))
 
+            print(temp_data)
             worksheet.append_row(temp_data)
     
     def init_google_sheet(self):
