@@ -317,7 +317,7 @@ class Rent59ESpider():
                 if info:
                     row = {k: info.get(k, '無') for k in self.field_names_order}
                     writer.writerow(row)
-                    temp_data.append_row(list(row.values()))
+                    temp_data.append(list(row.values()))
                     f.flush()
                 print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", end='\r')
                 time.sleep(random.uniform(0.1, 1))
