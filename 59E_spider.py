@@ -323,8 +323,15 @@ class Rent59ESpider():
                       end='\r')
                 time.sleep(random.uniform(0.1, 1))
 
-            print(temp_data)
             worksheet.append_rows(temp_data)
+
+            # 整個工作表文字換行
+            wrap_format = CellFormat(wrapStrategy='CLIP')
+            format_cell_range(worksheet, 'A:Z', wrap_format)
+
+            # 設定每列高度 40 px（必須迴圈）
+            for row_index in range(1, self.total_num):
+                set_row_height(worksheet, str(row_index), 20)
     
     def init_google_sheet(self):
         """初始化 google sheet"""
@@ -348,14 +355,6 @@ class Rent59ESpider():
                                                   cols="20")
         new_worksheet.append_row(self.field_names_order)
 
-        # 整個工作表文字換行
-        wrap_format = CellFormat(wrapStrategy='CLIP')
-        format_cell_range(new_worksheet, 'A:Z', wrap_format)
-
-        # 設定每列高度 40 px（必須迴圈）
-        for row_index in range(1, self.total_num):
-            set_row_height(new_worksheet, str(row_index), 20)
-
         return new_worksheet
 
 if __name__ == "__main__":
@@ -375,7 +374,7 @@ if __name__ == "__main__":
         keys=keys,
         combinations=combinations,
     )
-    print(f"共取得 {len(rent_ids)} 筆資料")
+    print(f"初步過濾得 {len(rent_ids)} 筆資料")
 
     # 抓詳情並寫入 CSV
     output_file = f"rent_list.csv"
