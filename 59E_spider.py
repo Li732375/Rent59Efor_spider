@@ -352,7 +352,7 @@ class Rent59ESpider():
 
         # 設定每列高度 40 px（必須迴圈）
         for row_index in range(1, self.total_num):
-            set_row_height(new_worksheet, str(row_index), 30)
+            set_row_height(new_worksheet, str(row_index), 20)
 
         return new_worksheet
 
