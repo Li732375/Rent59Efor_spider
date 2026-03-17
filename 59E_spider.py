@@ -12,11 +12,9 @@ from typing import Dict, List, Set, Tuple, Optional, Any
 from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 from bs4 import BeautifulSoup
-import re
 import gspread
 from google.oauth2.service_account import Credentials
 from gspread_formatting import format_cell_range, CellFormat, set_row_height
-
 
 
 # 設定標準輸出編碼
@@ -251,6 +249,15 @@ class Rent59ESpider():
             description = article.get_text(separator="\n", strip=True)
             rent.append(description)
 
+            # 距執行當下發佈時間
+            publish_time = (
+                soup.select_one('.publish-info span:nth-of-type(2)')
+                .get_text(strip=True)
+                .replace('此房屋在', '')
+                .replace('前發佈', '')
+            )
+            rent.append(publish_time)
+
             data_info = {
                 '更新日期': rent[8],
                 '案件標題': rent[1], 
@@ -263,7 +270,8 @@ class Rent59ESpider():
                 '網址': rent[0],
                 '電話': rent[10],
                 '屋主說': rent[11],
-                '捷運': rent[6]
+                '捷運': rent[6],
+                '發佈時間': rent[12],
                 }
             
             return data_info
