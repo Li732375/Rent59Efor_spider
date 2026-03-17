@@ -41,8 +41,8 @@ class Rent59ESpider():
         }
         self.field_names_order: List[str] = [
             '更新日期', '發佈時間', '坪數', '樓層', '總樓層', 
-            '捷運站', '捷運站距離', '地址', '租金', '網址', 
-            '屋主', '電話', '案件標題', '屋主說', 
+            '捷運站', '捷運站距離', '租金', '網址', 
+            '屋主', '電話', '地址', '案件標題', '屋主說', 
         ]
 
         self.total_num = 0
@@ -344,7 +344,7 @@ class Rent59ESpider():
 
             # 設定每列高度 40 px（必須迴圈）
             for row_index in range(1, self.total_num):
-                set_row_height(worksheet, str(row_index), 20)
+                set_row_height(worksheet, str(row_index), 25)
     
     def init_google_sheet(self):
         """初始化 google sheet"""
