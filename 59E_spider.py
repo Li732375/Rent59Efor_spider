@@ -42,9 +42,9 @@ class Rent59ESpider():
         self.mul_filter_params: Dict[str, str] = {
         }
         self.field_names_order: List[str] = [
-            '更新日期', '案件標題', '坪數', '樓層', '總樓層',
-            '地址', '租金', '屋主', '網址', '電話',
-            '屋主說',
+            '更新日期', '發佈時間', '坪數', '樓層',
+            '總樓層', '地址', '租金', '網址', 
+            '屋主', '電話', '案件標題',  '屋主說',
         ]
 
         self.total_num = 0
