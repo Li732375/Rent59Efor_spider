@@ -254,7 +254,7 @@ class Rent59ESpider():
                 soup.select_one('.publish-info span:nth-of-type(2)')
                 .get_text(strip=True)
                 .replace('此房屋在', '')
-                .replace('前發佈', '')
+                .split('發佈')[0]
             )
             rent.append(publish_time)
 
