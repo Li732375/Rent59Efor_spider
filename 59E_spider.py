@@ -311,15 +311,18 @@ class Rent59ESpider():
             writer = csv.DictWriter(f, fieldnames=self.field_names_order)
             writer.writeheader()
 
+            temp_data = []
             for idx, rent in enumerate(rents, 1):
                 info = self.get_rent(rent)
                 if info:
                     row = {k: info.get(k, '無') for k in self.field_names_order}
                     writer.writerow(row)
-                    worksheet.append_row(list(row.values()))
+                    temp_data.append_row(list(row.values()))
                     f.flush()
                 print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", end='\r')
                 time.sleep(random.uniform(0.1, 1))
+
+            worksheet.append_row(temp_data)
     
     def init_google_sheet(self):
         """初始化 google sheet"""
