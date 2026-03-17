@@ -302,7 +302,7 @@ class Rent59ESpider():
         return allrents_list
     
     def fetch_rents_and_write_csv(self, 
-                                 rents: Set[str], 
+                                 rents: list[list[str]], 
                                  output_file: str) -> None:
         """產生csv並寫入雲端試算表"""
         worksheet = self.init_google_sheet()
@@ -324,7 +324,7 @@ class Rent59ESpider():
                 time.sleep(random.uniform(0.1, 1))
 
             print(temp_data)
-            worksheet.append_row(temp_data)
+            worksheet.append_rows(temp_data)
     
     def init_google_sheet(self):
         """初始化 google sheet"""
