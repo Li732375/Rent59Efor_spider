@@ -243,7 +243,7 @@ class Rent59ESpider():
             
             # 電話
             phone = re.search(r'09\d{2}-\d{3}-\d{3}', soup.get_text())
-            phone = phone.group()
+            phone = phone.group() if phone else ""
             rent.append(phone)
 
             # 房屋描述
@@ -319,7 +319,8 @@ class Rent59ESpider():
                     writer.writerow(row)
                     temp_data.append(list(row.values()))
                     f.flush()
-                print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", end='\r')
+                print(f"進度：{(idx/len(rents))*100:6.2f} % ({idx}/{len(rents)})", 
+                      end='\r')
                 time.sleep(random.uniform(0.1, 1))
 
             worksheet.append_row(temp_data)
