@@ -195,7 +195,7 @@ class Rent59ESpider():
                         floor, total_floor = floor_text.split("/")
 
                     # 提前過濾頂樓物件
-                    if floor == total_floor: continue
+                    if floor == total_floor and total_floor != "1F" : continue
                     self.total_num -= 1
 
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
