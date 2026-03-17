@@ -35,7 +35,7 @@ class Rent59ESpider():
             'sort': 'posttime_desc',  # 按更新時間排序
             'option': 'cold,washer,icebox,hotwater,broadband,bed',  # 冷氣、洗衣機、冰箱、熱水器、寬頻網路、床
             'notice': 'not_cover,all_sex,boy',  # 非頂加、皆可、限男
-            'station': '4184,4200,4232,4231',  # 古亭站4184、頂溪4231、永安市場4232、東門4200
+            'station': '4231,4184,4200,4232,4184',  # 古亭站4184、頂溪4231、永安市場4232、東門4200
         }
         self.mul_filter_params: Dict[str, str] = {
         }
