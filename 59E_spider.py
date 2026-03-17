@@ -242,8 +242,8 @@ class Rent59ESpider():
             soup = BeautifulSoup(r.text, "html.parser")
             
             # 電話
-            phone = re.search(r'09\d{2}-\d{3}-\d{3}', soup.get_text())
-            phone = phone.group() if phone else ""
+            phone = soup.select_one('.phone span span').get_text(strip=True)
+            if not phone: phone = ""
             rent.append(phone)
 
             # 房屋描述
