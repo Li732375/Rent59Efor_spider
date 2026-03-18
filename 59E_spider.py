@@ -362,7 +362,7 @@ class Rent59ESpider():
         time_name = time.strftime("%Y_%m_%d_%H_%M")
         sheet_name = f"rent_list_{time_name}".replace("'", "")
         spreadsheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
-        max_rows=str(self.total_num + 1)
+        max_rows=str(self.total_num + 2)
         new_worksheet = spreadsheet.add_worksheet(title=sheet_name, 
                                                   rows=max_rows, 
                                                   cols="20")
