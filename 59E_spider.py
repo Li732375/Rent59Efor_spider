@@ -400,7 +400,7 @@ if __name__ == "__main__":
         keys=keys,
         combinations=combinations,
     )
-    print(f"初步過濾得 {len(rent_ids)} 筆資料")
+    print(f"去除重複得 {len(rent_ids)} 筆資料")
 
     # 抓詳情並寫入 CSV
     output_file = f"rent_list.csv"
