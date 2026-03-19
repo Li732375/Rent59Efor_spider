@@ -43,14 +43,22 @@ pip install -r requirements.txt
 playwright install
 ```
 
-4. 建立 Google Service Account 並下載 `service_account.json`
+4. 啟用 Google Sheets API（必須步驟）
 
-   * 將 Service Account Email 加入 Google 試算表編輯權限
-   * 設定環境變數 `GOOGLE_SHEET_ID` 為你的試算表 ID
+⚠️ 若跳過這一步，程式無法將資料寫入試算表，會出現權限錯誤。
+
+步驟：
+
+   1. 打開 Google Cloud Console
+   2. 選擇或新增專案
+   3. 搜尋 Google Sheets API → 點擊 啟用
+   4. 確認你的 Service Account 已加入該試算表並設定共用編輯權限
+   5. 建立 Google Service Account 並下載 service_account.json
+   6. 將 Service Account JSON 放在專案根目錄
 
 ---
 
-## 使用方法（本地運行）
+## 使用方法
 
 1. 將 `service_account.json` 放在專案根目錄
 2. 修改篩選條件：
@@ -68,8 +76,8 @@ python 59E_spider.py
 
 4. 執行完成後：
 
-   * CSV 檔案 `rent_list.csv` 出現在專案目錄
-   * Google 試算表新增工作表，包含抓取資料
+   * CSV 檔案 `rent_list_....csv` 出現在專案目錄
+   * Google 試算表每次都會自動新增工作表和抓取資料，不會覆寫過去的試算表
    * 抓取錯誤會記錄在 `error_message.json`
 
 ---
