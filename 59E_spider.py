@@ -154,6 +154,8 @@ class Rent59ESpider():
         
         while max_num == -1 or len(rents) < max_num:
             full_params = f'{query}&page={page}'  # 一頁 30 筆
+            print(f"搜索網址:\n{url}{query}")
+            
             r = self.fetch_with_retry(url, headers=headers, params=full_params)
             if r is None: break
 
