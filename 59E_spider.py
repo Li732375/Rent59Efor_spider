@@ -35,9 +35,9 @@ class Rent59ESpider():
             'sort': 'posttime_desc',  # 按更新時間排序
             'option': 'cold,washer,icebox,hotwater,broadband,bed',  # 冷氣、洗衣機、冰箱、熱水器、寬頻網路、床
             'notice': 'not_cover,all_sex,boy',  # 非頂加、皆可、限男
-            'station': '4231,4184,4200,4232,4184',  # 古亭站4184、頂溪4231、永安市場4232、東門4200，末站為參考基準站
         }
         self.mul_filter_params: Dict[str, str] = {
+            'station': '4231,4184,4200,4232,4183,4201',  # 古亭站4184、頂溪4231、永安市場4232、東門4200，末站為參考基準站
         }
         self.field_names_order: List[str] = [
             '更新日期', '發佈時間', '租金', '坪數', '樓層', '總樓層', 
@@ -312,7 +312,11 @@ class Rent59ESpider():
             allrents_list.extend(rents)
             print(f"進度：{(idx/len(combinations))*100:6.2f} % | 累計：{len(allrents_list)}", end='\r')
 
-        return allrents_list
+        # 以網址為索引，去除重複
+        unique_dict = {row[8]: row for row in allrents_list}
+        result = list(unique_dict.values())
+
+        return result
     
     def fetch_rents_and_write_csv(self, 
                                  rents: list[list[str]], 
