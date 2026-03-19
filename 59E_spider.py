@@ -195,8 +195,9 @@ class Rent59ESpider():
                         floor, total_floor = floor_text.split("/")
 
                     # 提前過濾頂樓物件
-                    if floor == total_floor and total_floor != "1F" : continue
-                    vaild_num -= 1
+                    if floor == total_floor and total_floor != "1F" : 
+                        vaild_num -= 1
+                        continue
 
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
                     metro_name = (
@@ -321,9 +322,10 @@ class Rent59ESpider():
 
         # 以網址為索引，去除重複
         unique_dict = {row[8]: row for row in allrents_list}
-        result = list(unique_dict.values())
+        unique_result = list(unique_dict.values())
+        self.total_num = len(unique_result)
 
-        return result
+        return unique_result
     
     def fetch_rents_and_write_csv(self, 
                                  rents: list[list[str]], 
