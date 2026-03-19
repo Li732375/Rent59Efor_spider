@@ -165,6 +165,7 @@ class Rent59ESpider():
                 # 取得房屋總數
                 total_tag = soup.select_one("p.total strong")
                 self.search_total_num = total_tag.get_text(strip=True) if total_tag else "0"
+                vaild_num = int(self.search_total_num)
 
                 print(f'共 {self.search_total_num} 筆資料')
 
@@ -195,7 +196,7 @@ class Rent59ESpider():
 
                     # 提前過濾頂樓物件
                     if floor == total_floor and total_floor != "1F" : continue
-                    self.search_total_num -= 1
+                    vaild_num -= 1
 
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
                     metro_name = (
@@ -224,8 +225,9 @@ class Rent59ESpider():
                     rents.append([url, title, addr, area, floor, total_floor, 
                                   metro_name, owner, update, price, metro_dist])
 
-                self.total_num += int(self.search_total_num)
-
+                print(f"篩選後餘 {vaild_num} 筆")
+                self.total_num += vaild_num
+                
                 if page * 30 >= self.search_total_num: break
                 time.sleep(random.uniform(1, 2))
                 page += 1
