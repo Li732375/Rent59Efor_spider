@@ -164,10 +164,9 @@ class Rent59ESpider():
 
                 # 取得房屋總數
                 total_tag = soup.select_one("p.total strong")
-                self.total_num = total_tag.get_text(strip=True) if total_tag else "0"
-                self.total_num = int(self.total_num)
+                self.search_total_num = total_tag.get_text(strip=True) if total_tag else "0"
 
-                print(f'共 {self.total_num} 筆資料')
+                print(f'共 {self.search_total_num} 筆資料')
 
                 for item in soup.select("div.item"):
 
@@ -196,7 +195,7 @@ class Rent59ESpider():
 
                     # 提前過濾頂樓物件
                     if floor == total_floor and total_floor != "1F" : continue
-                    self.total_num -= 1
+                    self.search_total_num -= 1
 
                     # 捷運站(鄰近或目標)與捷運站(鄰近或目標)距離
                     metro_name = (
@@ -225,7 +224,9 @@ class Rent59ESpider():
                     rents.append([url, title, addr, area, floor, total_floor, 
                                   metro_name, owner, update, price, metro_dist])
 
-                if page * 30 >= self.total_num: break
+                self.total_num += int(self.search_total_num)
+
+                if page * 30 >= self.search_total_num: break
                 time.sleep(random.uniform(1, 2))
                 page += 1
                 
@@ -301,7 +302,7 @@ class Rent59ESpider():
                         keys: List[str], 
                         combinations: List[Tuple[str, ...]], 
                         max_num: int = 20
-                        ) -> Set[str]:
+                        ) -> List[List[str]]:
         """去除重複資料"""
         allrents_list: List[List[str]] = []
 
@@ -310,9 +311,11 @@ class Rent59ESpider():
                 **uni_filter_params,
                 **dict(zip(keys, combo))
             }
-            rents: List[str] = self.search(max_num=max_num, filter_params=filter_params)
+            rents: List[str] = self.search(max_num=max_num, 
+                                           filter_params=filter_params)
             allrents_list.extend(rents)
-            print(f"進度：{(idx/len(combinations))*100:6.2f} % | 累計：{len(allrents_list)}", end='\r')
+            print(f"進度：{(idx/len(combinations))*100:6.2f} % | 累計：{len(allrents_list)}", 
+                  end='\r')
 
         # 以網址為索引，去除重複
         unique_dict = {row[8]: row for row in allrents_list}
