@@ -297,8 +297,8 @@ class Rent59ESpider():
     def collect_rent_ids(self, 
                         uni_filter_params: Dict[str, str], 
                         keys: List[str], 
-                        combinations: List[Tuple[str, ...]]
-                        , max_num: int = 20
+                        combinations: List[Tuple[str, ...]], 
+                        max_num: int = 20
                         ) -> Set[str]:
         """去除重複資料"""
         allrents_list: List[List[str]] = []
