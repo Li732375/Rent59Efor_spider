@@ -38,7 +38,7 @@ class Rent59ESpider():
         }
         self.mul_filter_params: Dict[str, str] = {
             # 末站為參考基準站
-            """
+            '''
             頂溪       4231
             古亭       4184
             東門       4200
@@ -49,7 +49,7 @@ class Rent59ESpider():
             小南門     4255
             景安       4233
             南勢角     4234
-            """
+            '''
             'station': '4231,4184,4200,4232,4183,4201,4188,4181,4233,4234',  
         }
         self.field_names_order: List[str] = [
