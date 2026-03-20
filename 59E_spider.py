@@ -356,7 +356,7 @@ class Rent59ESpider():
             format_cell_range(worksheet, 'A:Z', wrap_format)
 
             # 設定每列高度（必須迴圈）
-            for row_index in range(1, self.total_num + 1):
+            for row_index in range(1, self.total_num + 2):
                 set_row_height(worksheet, str(row_index), 25)
     
     def init_google_sheet(self):
