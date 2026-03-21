@@ -54,7 +54,7 @@ class Rent59ESpider():
             'station': '4231,4184,4200,4232,4183,4201,4188,4181,4233,4234,4189,4245',  
         }
         self.field_names_order: List[str] = [
-            '更新日期', '發佈時間', '租金', '坪數', '樓層', '總樓層', 
+            '更新日期', '發佈時間', 'ID', '租金', '坪數', '樓層', '總樓層', 
             '捷運站', '捷運站距離', '網址', 
             '屋主', '電話', '地址', '案件標題', '屋主說', 
         ]
@@ -282,6 +282,10 @@ class Rent59ESpider():
             )
             rent.append(publish_time)
 
+            # ID
+            rent_id = url.split('/')[-1]
+            rent.append(rent_id)
+
             data_info = {
                 '更新日期': rent[8],
                 '案件標題': rent[1], 
@@ -297,6 +301,7 @@ class Rent59ESpider():
                 '捷運站': rent[6],
                 '發佈時間': rent[13],
                 '捷運站距離': rent[10],
+                'ID': rent[14]
                 }
             
             return data_info
