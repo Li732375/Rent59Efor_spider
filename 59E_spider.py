@@ -8,7 +8,7 @@ import csv
 import json
 import sys
 import os
-from typing import Dict, List, Set, Tuple, Optional, Any
+from typing import Dict, List, Tuple, Optional, Any
 from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 from bs4 import BeautifulSoup
