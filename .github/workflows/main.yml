@@ -54,6 +54,9 @@ jobs:
       - name: Run spider_new_taipei script
         run: python 59E_spider-new_taipei.py
 
+      - name: Run spider_new_taipei script
+        run: python 59E_spider-kind3.py
+
       # 記得設定 Setting > Actions > General > Workflow permissions > Read and write permissions
       # 否則會報錯 403 權限問題
       - name: Commit and push changes
