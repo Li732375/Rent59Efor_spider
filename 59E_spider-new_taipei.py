@@ -39,8 +39,7 @@ class Rent59ESpider():
             # 永和        37
             # 新店        34
             # 中和        38
-            # 板橋        26
-            'section': '37,34,38,26',  
+            'section': '37,34,38',  
         }
         self.field_names_order: List[str] = [
             '更新日期', '發佈時間', 'ID', '租金', '坪數', '樓層', '總樓層', 
