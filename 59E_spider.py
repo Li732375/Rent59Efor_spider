@@ -31,7 +31,7 @@ class Rent59ESpider():
             'kind': '2',  # 類型-獨立套房
             'price': '$_13000$',  # 最低額度(不寫為0)$_最高額度$
             'shType': 'host',  # 屋主直租
-            'metro': '162',  # 北捷
+            'metro': '162',  # 捷運路線
             'sort': 'posttime_desc',  # 按更新時間排序
             'option': 'cold,washer,icebox,hotwater,broadband,bed',  # 冷氣、洗衣機、冰箱、熱水器、寬頻網路、床
             'notice': 'not_cover,all_sex,boy',  # 非頂加、皆可、限男
