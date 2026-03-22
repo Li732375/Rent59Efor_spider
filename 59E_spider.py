@@ -27,7 +27,7 @@ class Rent59ESpider():
         self.error_log_file: str = 'error_message.json'
 
         self.uni_filter_params: Dict[str, str] = {
-            'region': '1',  # 台北1、新北2
+            'region': '1',  # 台北1、新北3
             'kind': '2',  # 類型-獨立套房
             'price': '$_13000$',  # 最低額度(不寫為0)$_最高額度$
             'shType': 'host',  # 屋主直租
