@@ -8,6 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Taipei
+      GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
 
     steps:
       - name: Checkout repository
@@ -45,9 +46,13 @@ jobs:
           echo '${{ secrets.GOOGLE_SERVICE_ACCOUNT }}' > service_account.json
 
       - name: Run spider script
-        env:
-          GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         run: python 59E_spider.py
+
+      - name: Run spider_taipei script
+        run: python 59E_spider-taipei.py
+
+      - name: Run spider_new_taipei script
+        run: python 59E_spider-new_taipei.py
 
       # 記得設定 Setting > Actions > General > Workflow permissions > Read and write permissions
       # 否則會報錯 403 權限問題
