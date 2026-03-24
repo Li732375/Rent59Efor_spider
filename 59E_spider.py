@@ -293,7 +293,7 @@ class Rent59ESpider():
             rent.append(publish_time)
 
             # ID
-            rent_id = url.split('/')[-1]
+            rent_id = url.split('/')[-1].split('?')[0]
             rent.append(rent_id)
 
             data_info = {
