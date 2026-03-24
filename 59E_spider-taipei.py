@@ -182,7 +182,7 @@ class Rent59ESpider():
                     link = item.select_one(".item-info-title a")
 
                     # 網址
-                    url = link["href"].strip()
+                    url = link["href"].strip().split('?')[0]
 
                     # 標題
                     title = link.get_text(strip=True)
@@ -277,7 +277,7 @@ class Rent59ESpider():
             rent.append(publish_time)
 
             # ID
-            rent_id = url.split('/')[-1].split('?')[0]
+            rent_id = url.split('/')[-1]
             rent.append(rent_id)
 
             data_info = {
